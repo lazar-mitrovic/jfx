@@ -23,35 +23,37 @@
  * questions.
  */
 
-package com.sun.javafx.scene.control.skin;
+package javafx.scene.control.skin;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 
-import com.sun.javafx.scene.control.behavior.TextFieldBehavior;
 import javafx.scene.control.skin.TextFieldSkin;
 
 public class TextFieldSkinAndroid extends TextFieldSkin {
 
     public TextFieldSkinAndroid(final TextField textField) {
         super(textField);
+System.err.println("TEXTFIELDskinandroid created");
 
         textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> observable,
                     Boolean wasFocused, Boolean isFocused) {
+System.err.println("TEXTFIELDskinandroid changed");
                 if (textField.isEditable()) {
                     if (isFocused) {
-                        com.sun.glass.ui.android.SoftwareKeyboard.show();
+System.err.println("TEXTFIELDskinandroid focused");
+                        showSoftwareKeyboard();
                     } else {
-                        com.sun.glass.ui.android.SoftwareKeyboard.hide();
+System.err.println("TEXTFIELDskinandroid not focused");
+                        hideSoftwareKeyboard();
                     }
                 }
             }
         });
     }
 
-    public TextFieldSkinAndroid(final TextField textField, final TextFieldBehavior behavior) {
-        super(textField, behavior);
-    }
+    native void showSoftwareKeyboard();
+    native void hideSoftwareKeyboard();
 }
