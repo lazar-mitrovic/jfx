@@ -83,6 +83,7 @@ public class AndroidInputDeviceRegistry extends InputDeviceRegistry {
 
     private void gotKeyEvent(int action, int lk) {
         int vk = LinuxKeyProcessor.getVirtualKeyCode(lk);
+System.err.println("AIDR, gotKeyevent, action = "+action+", lk = "+lk+" and vk = "+vk);
         if (action == 0) {
             keyState.pressKey(vk);
         }
