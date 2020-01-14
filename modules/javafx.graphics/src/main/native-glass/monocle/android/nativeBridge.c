@@ -90,7 +90,7 @@ void androidJfx_setDensity(float nativeDensity) {
     androidDensity = nativeDensity;
 }
 
-void androidJfx_gotKeyEvent (int action, int keyCode, char* chars, int count, int mods) {
+void androidJfx_gotKeyEvent (int action, int keyCode, jchar* chars, int count, int mods) {
     initializeFromNative();
     if (javaEnv == NULL) {
         GLASS_LOG_FINE("javaEnv still null, not ready to process touch events");
@@ -103,6 +103,7 @@ void androidJfx_gotKeyEvent (int action, int keyCode, char* chars, int count, in
     }
     GLASS_LOG_FINE("call monocle method from nativeBridge with action = %d and keycode = %d and count = %d", action, keyCode, count);
     jcharArray jchars = (*javaEnv)->NewCharArray(javaEnv, count);
+    GLASS_LOG_FINE("call monocle method from nativeBridge with b0 = %x and b1 = %x\n",chars[0], chars[1]);
     (*javaEnv)->SetCharArrayRegion(javaEnv, jchars, 0, count, chars);
     (*javaEnv)->CallStaticVoidMethod(javaEnv, jAndroidInputDeviceRegistryClass, monocle_dispatchKeyEventFromNative,
                                      action, keyCode, jchars, mods);
