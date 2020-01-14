@@ -59,6 +59,7 @@ public class AndroidInputDeviceRegistry extends InputDeviceRegistry {
                 touchState.addPoint(p);
             }
         }
+System.err.println("got touch event, instance = "+instance);
         Platform.runLater(() -> instance.gotTouchEvent(touchState));
     }
 
@@ -76,6 +77,18 @@ public class AndroidInputDeviceRegistry extends InputDeviceRegistry {
         processor.pushEvent(touchState);
     }
 
+
+    public static void dispatchKeyEventFromNative(int type, int key, char[] chars, int modifiers) {
+if (chars != null) {
+System.err.println("AIDR, dispatchKeyEventFromNative, type = "+type+", key = "+key+" chars = "+java.util.Arrays.asList(chars));
+} else {
+System.err.println("chars = null");
+}
+System.err.println("got key event, instance = "+instance);
+System.err.println("got key event, instance proc = "+instance.processor);
+        instance.processor.dispatchKeyEvent(type, key, chars, modifiers);
+System.err.println("processed key event, instance proc = "+instance.processor);
+    }
 
     public static void gotKeyEventFromNative(int action, int linuxKey) {
         instance.gotKeyEvent (action, linuxKey);

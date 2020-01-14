@@ -35,7 +35,7 @@ static jclass jAndroidInputDeviceRegistryClass;
 static jclass jMonocleWindowManagerClass;
 
 static jmethodID monocle_gotTouchEventFromNative;
-static jmethodID monocle_gotKeyEventFromNative;
+static jmethodID monocle_dispatchKeyEventFromNative;
 static jmethodID monocle_repaintAll;
 static jmethodID monocle_registerDevice;
 
@@ -57,9 +57,9 @@ void initializeFromJava (JNIEnv *env) {
     monocle_gotTouchEventFromNative = (*env)->GetStaticMethodID(
                                             env, jAndroidInputDeviceRegistryClass, "gotTouchEventFromNative",
                                             "(I[I[I[I[II)V");
-    monocle_gotKeyEventFromNative = (*env)->GetStaticMethodID(
-                                            env, jAndroidInputDeviceRegistryClass, "gotKeyEventFromNative",
-                                            "(II)V");
+    monocle_dispatchKeyEventFromNative = (*env)->GetStaticMethodID(
+                                            env, jAndroidInputDeviceRegistryClass, "dispatchKeyEventFromNative",
+                                            "(II[CI)V");
     monocle_registerDevice = (*env)->GetStaticMethodID(env, jAndroidInputDeviceRegistryClass, "registerDevice","()V");
     GLASS_LOG_FINE("Initializing native Android Bridge done");
 }
@@ -90,7 +90,7 @@ void androidJfx_setDensity(float nativeDensity) {
     androidDensity = nativeDensity;
 }
 
-void androidJfx_gotKeyEvent (int action, int keyCode) {
+void androidJfx_gotKeyEvent (int action, int keyCode, char* chars, int count, int mods) {
     initializeFromNative();
     if (javaEnv == NULL) {
         GLASS_LOG_FINE("javaEnv still null, not ready to process touch events");
@@ -101,10 +101,12 @@ void androidJfx_gotKeyEvent (int action, int keyCode) {
         GLASS_LOG_FINE("This is the first time we have a touch even, register device now");
         (*javaEnv)->CallStaticVoidMethod(javaEnv, jAndroidInputDeviceRegistryClass, monocle_registerDevice);
     }
-    GLASS_LOG_FINE("call monocle method from nativeBridge with action = %d and keycode = %d", action, keyCode);
-    (*javaEnv)->CallStaticVoidMethod(javaEnv, jAndroidInputDeviceRegistryClass, monocle_gotKeyEventFromNative,
-                                     action, keyCode);
-    GLASS_LOG_FINE("called monocle method from nativeBridge");
+    GLASS_LOG_FINE("call monocle method from nativeBridge with action = %d and keycode = %d and count = %d", action, keyCode, count);
+    jcharArray jchars = (*javaEnv)->NewCharArray(javaEnv, count);
+    (*javaEnv)->SetCharArrayRegion(javaEnv, jchars, 0, count, chars);
+    (*javaEnv)->CallStaticVoidMethod(javaEnv, jAndroidInputDeviceRegistryClass, monocle_dispatchKeyEventFromNative,
+                                     action, keyCode, jchars, mods);
+    GLASS_LOG_FINE("called monocle method from nativeBridge, mods = %d\n", mods);
 }
 
 void androidJfx_gotTouchEvent (int count, int* actions, int* ids, int* xs, int* ys, int primary) {
