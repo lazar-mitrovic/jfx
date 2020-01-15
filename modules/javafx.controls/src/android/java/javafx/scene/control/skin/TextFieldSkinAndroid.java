@@ -33,8 +33,11 @@ import javafx.scene.control.skin.TextFieldSkin;
 
 public class TextFieldSkinAndroid extends TextFieldSkin {
 
+    private final TextField control;
+
     public TextFieldSkinAndroid(final TextField textField) {
         super(textField);
+        this.control = textField;
 System.err.println("TEXTFIELDskinandroid created");
 
         textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
@@ -45,13 +48,28 @@ System.err.println("TEXTFIELDskinandroid changed");
                     if (isFocused) {
 System.err.println("TEXTFIELDskinandroid focused");
                         showSoftwareKeyboard();
+adjustSize(460);
                     } else {
 System.err.println("TEXTFIELDskinandroid not focused");
                         hideSoftwareKeyboard();
+        if(control.getScene() != null) {
+            control.getScene().getRoot().setTranslateY(0);
+        }
+
                     }
                 }
             }
         });
+    }
+
+    private void adjustSize(double kh) {
+        double tTot = control.getScene().getHeight();
+        double ty = control.getLocalToSceneTransform().getTy()+ control.getHeight();
+        if (ty > (tTot - kh) ) {
+            control.getScene().getRoot().setTranslateY(tTot - ty - kh);
+        } else if (kh < 1) {
+            control.getScene().getRoot().setTranslateY(0);
+        }
     }
 
     native void showSoftwareKeyboard();
